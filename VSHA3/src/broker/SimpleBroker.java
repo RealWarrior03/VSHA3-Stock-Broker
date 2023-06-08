@@ -1,23 +1,13 @@
-package de.tu_berlin.cit.vs.jms.broker;
+package broker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.jms.Connection;
+import common.Stock;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
-import javax.jms.Session;
-import de.tu_berlin.cit.vs.jms.common.BrokerMessage;
-import de.tu_berlin.cit.vs.jms.common.RegisterMessage;
-import de.tu_berlin.cit.vs.jms.common.Stock;
-import de.tu_berlin.cit.vs.jms.common.UnregisterMessage;
-import org.apache.activemq.ActiveMQConnectionFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class SimpleBroker {

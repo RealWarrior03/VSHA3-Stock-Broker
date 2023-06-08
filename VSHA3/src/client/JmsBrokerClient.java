@@ -1,4 +1,4 @@
-package de.tu_berlin.cit.vs.jms.client;
+package client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,13 +15,13 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
-import de.tu_berlin.cit.vs.jms.common.BuyMessage;
-import de.tu_berlin.cit.vs.jms.common.ListMessage;
-import de.tu_berlin.cit.vs.jms.common.RegisterMessage;
-import de.tu_berlin.cit.vs.jms.common.RequestListMessage;
-import de.tu_berlin.cit.vs.jms.common.SellMessage;
-import de.tu_berlin.cit.vs.jms.common.Stock;
-import de.tu_berlin.cit.vs.jms.common.UnregisterMessage;
+import common.BuyMessage;
+import common.ListMessage;
+import common.RegisterMessage;
+import common.RequestListMessage;
+import common.SellMessage;
+import common.Stock;
+import common.UnregisterMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 

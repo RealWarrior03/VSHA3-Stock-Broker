@@ -1,4 +1,4 @@
-package de.tu_berlin.cit.vs.jms.broker;
+package broker;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jms.JMSException;
-import de.tu_berlin.cit.vs.jms.common.Stock;
+import common.Stock;
 
 public class JmsBrokerServer {
     public static void main(String[] args) {
