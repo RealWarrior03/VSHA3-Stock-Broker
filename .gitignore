@@ -1,0 +1,11 @@
+#Ignore everything
+*
+
+#Do not ignore these files
+!.gitignore
+!VSHA3/src/broker/*
+!VSHA3/src/client/*
+!VSHA3/src/common/*
+
+#The files above are added, disregarding in which subdirectory they are located
+#!*/
