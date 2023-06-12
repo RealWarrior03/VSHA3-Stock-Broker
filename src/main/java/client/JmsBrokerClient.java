@@ -7,14 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Session;
+import javax.jms.*;
+
 import common.BuyMessage;
 import common.ListMessage;
 import common.RegisterMessage;
@@ -30,7 +24,27 @@ public class JmsBrokerClient {
 
     public JmsBrokerClient(String clientName) throws JMSException {
         this.clientName = clientName;
-        
+
+        ActiveMQConnectionFactory conFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+        Connection con = conFactory.createConnection();
+        con.start();
+        Session session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+        Queue consumerQ = session.createQueue(clientName+"In");
+        Queue producerQ = session.createQueue(clientName+"Out");
+        MessageConsumer consumer = session.createConsumer(consumerQ);
+        MessageProducer producer = session.createProducer(producerQ);
+        MessageListener listener = new MessageListener() {
+            public void onMessage(Message msg) {
+                if(msg instanceof ObjectMessage) {
+
+                }
+            }
+        };
+        consumer.setMessageListener(listener);
+        RegisterMessage regMsg = new RegisterMessage(clientName);
+        ObjectMessage msg = session.createObjectMessage(regMsg);
+        producer.send(msg);
         /* TODO: initialize connection, sessions, consumer, producer, etc. */
     }
     
@@ -57,7 +71,8 @@ public class JmsBrokerClient {
     public void quit() throws JMSException {
         //TODO
     }
-    
+
+
     /**
      * @param args the command line arguments
      */
