@@ -10,7 +10,13 @@ import java.util.List;
 
 public class SimpleBroker {
     /* TODO: variables as needed */
-    
+    ActiveMQConnectionFactory conFactory;
+    Connection con;
+    Session session;
+
+    ArrayList<Topic> topics;
+    ArrayList<ClientInfos> clientInfos;
+
     private final MessageListener listener = new MessageListener() {
         @Override
         public void onMessage(Message msg) {
@@ -55,7 +61,7 @@ public class SimpleBroker {
 
         /*prepare stocks as topics */
         for(Stock stock : stockList) {
-            /* TODO: prepare stocks as topics */
+            topics.add(session.createTopic(stock.getName()));
         }
     }
     
