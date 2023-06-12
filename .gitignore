@@ -4,9 +4,10 @@
 #Do not ignore these files
 !.gitignore
 !README.md
-!VSHA3/src/broker/*
-!VSHA3/src/client/*
-!VSHA3/src/common/*
+!src/main/java/broker/*
+!src/main/java/client/*
+!src/main/java/common/*
+!pom.xml
 
 #The files above are added, disregarding in which subdirectory they are located
 #!*/
