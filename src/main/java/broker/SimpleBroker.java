@@ -1,11 +1,9 @@
 package broker;
 
-import common.Stock;
+import common.*;
+import org.apache.activemq.ActiveMQConnectionFactory;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import javax.jms.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,15 +14,46 @@ public class SimpleBroker {
     private final MessageListener listener = new MessageListener() {
         @Override
         public void onMessage(Message msg) {
-            if(msg instanceof ObjectMessage) {
-                //TODO
+
+            if(msg instanceof RegisterMessage) {
+                try {
+                    MessageConsumer consumer = session.createConsumer(session.createQueue(((RegisterMessage) msg).getClientName()+"Out"));
+                    MessageProducer producer = session.createProducer(session.createQueue(((RegisterMessage) msg).getClientName()+"In"));
+                    ClientInfos newClient = new ClientInfos(consumer, producer, ((RegisterMessage) msg).getClientName());
+                    clientInfos.add(newClient);
+
+                    consumer.setMessageListener(new MessageListener() {
+                        @Override
+                        public void onMessage(Message msg) { //TODO functionality
+                            if(msg instanceof RequestListMessage) {
+
+                            }
+                            else if(msg instanceof SellMessage){
+
+                            }
+                            else if(msg instanceof BuyMessage) {
+
+                            }
+                        }
+                    });
+                } catch (JMSException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     };
     
     public SimpleBroker(List<Stock> stockList) throws JMSException {
         /* TODO: initialize connection, sessions, etc. */
-        
+        conFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+        con = conFactory.createConnection();
+        con.start();
+        session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        Queue registrationQueue = session.createQueue("registrationQueue");
+        MessageConsumer consumer = session.createConsumer(registrationQueue);
+        consumer.setMessageListener(listener);
+
+        /*prepare stocks as topics */
         for(Stock stock : stockList) {
             /* TODO: prepare stocks as topics */
         }
