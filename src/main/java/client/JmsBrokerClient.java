@@ -56,6 +56,9 @@ public class JmsBrokerClient {
     
     public void requestList() throws JMSException {
         //TODO
+        /*ListMessage listMsg = new ListMessage();
+        ObjectMessage msg = session.createObjectMessage(listMsg);
+        producer.send(msg);*/
     }
     
     public void buy(String stockName, int amount) throws JMSException {
