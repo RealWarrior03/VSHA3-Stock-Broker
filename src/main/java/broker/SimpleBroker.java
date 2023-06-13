@@ -15,8 +15,10 @@ public class SimpleBroker {
     Session session;
     SimpleBroker myself = this;
 
-    ArrayList<Topic> topics;
+    private List<Stock> stockList;
+    ArrayList<StockInfos> stockInfos;
     ArrayList<ClientInfos> clientInfos;
+
 
     private final MessageListener listener = new MessageListener() {
         @Override
@@ -37,7 +39,7 @@ public class SimpleBroker {
     };
     
     public SimpleBroker(List<Stock> stockList) throws JMSException {
-        /* TODO: initialize connection, sessions, etc. */
+        this.stockList = stockList;
         conFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
         con = conFactory.createConnection();
         con.start();
@@ -50,6 +52,10 @@ public class SimpleBroker {
         for(Stock stock : stockList) {
             topics.add(session.createTopic(stock.getName()));
         }
+    }
+
+    public List<Stock> getStocks(){
+        return stockList;
     }
     
     public void stop() throws JMSException {

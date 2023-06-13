@@ -24,15 +24,24 @@ public class ClientInfos {
 
         consumer.setMessageListener(new MessageListener() {
             @Override
-            public void onMessage(Message msg) { //TODO functionality
-                if(msg instanceof RequestListMessage) {
+            public void onMessage(Message message) { //TODO functionality
+                if(message instanceof ObjectMessage) {
+                    BrokerMessage msg = ((ObjectMessage) message).getObject();
+                    if(msg instanceof RequestListMessage) {
+                        try {
+                            ObjectMessage returnMessage = broker.session.createObjectMessage(new ListMessage(broker.getStocks()));
+                            producer.send(returnMessage);
+                        } catch (JMSException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    else if(msg instanceof SellMessage){
 
-                }
-                else if(msg instanceof SellMessage){
+                    }
+                    else if(msg instanceof BuyMessage) {
+                        broker.buy();
 
-                }
-                else if(msg instanceof BuyMessage) {
-
+                    }
                 }
             }
         });

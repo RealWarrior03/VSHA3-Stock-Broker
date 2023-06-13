@@ -77,11 +77,9 @@ public class JmsBrokerClient {
         ObjectMessage msg = session.createObjectMessage(sellMsg);
         producer.send(msg);
     }
-    
+
     public void unwatch(String stockName) throws JMSException {
-        UnregisterMessage unregMsg = new UnregisterMessage(stockName);
-        ObjectMessage msg = session.createObjectMessage(unregMsg);
-        producer.send(msg);
+        session.unsubscribe(stockName);
     }
     
     public void quit() throws JMSException {
