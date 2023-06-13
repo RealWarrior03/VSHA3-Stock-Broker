@@ -13,6 +13,7 @@ public class SimpleBroker {
     ActiveMQConnectionFactory conFactory;
     Connection con;
     Session session;
+    SimpleBroker myself = this;
 
     ArrayList<Topic> topics;
     ArrayList<ClientInfos> clientInfos;
@@ -25,23 +26,9 @@ public class SimpleBroker {
                 try {
                     MessageConsumer consumer = session.createConsumer(session.createQueue(((RegisterMessage) msg).getClientName()+"Out"));
                     MessageProducer producer = session.createProducer(session.createQueue(((RegisterMessage) msg).getClientName()+"In"));
-                    ClientInfos newClient = new ClientInfos(consumer, producer, ((RegisterMessage) msg).getClientName());
+                    ClientInfos newClient = new ClientInfos(consumer, producer, ((RegisterMessage) msg).getClientName(), myself);
                     clientInfos.add(newClient);
 
-                    consumer.setMessageListener(new MessageListener() {
-                        @Override
-                        public void onMessage(Message msg) { //TODO functionality
-                            if(msg instanceof RequestListMessage) {
-
-                            }
-                            else if(msg instanceof SellMessage){
-
-                            }
-                            else if(msg instanceof BuyMessage) {
-
-                            }
-                        }
-                    });
                 } catch (JMSException e) {
                     throw new RuntimeException(e);
                 }

@@ -13,11 +13,28 @@ public class ClientInfos {
     MessageProducer producer;
     String clientName;
     ArrayList<Stock> stocks;
+    SimpleBroker broker;
 
-    public ClientInfos(MessageConsumer consumer, MessageProducer producer, String clientName) {
+    public ClientInfos(MessageConsumer consumer, MessageProducer producer, String clientName, SimpleBroker broker) {
         this.consumer = consumer;
         this.producer = producer;
         this.clientName = clientName;
         this.stocks = new ArrayList<>();
+        this.broker = broker;
+
+        consumer.setMessageListener(new MessageListener() {
+            @Override
+            public void onMessage(Message msg) { //TODO functionality
+                if(msg instanceof RequestListMessage) {
+
+                }
+                else if(msg instanceof SellMessage){
+
+                }
+                else if(msg instanceof BuyMessage) {
+
+                }
+            }
+        });
     }
 }
