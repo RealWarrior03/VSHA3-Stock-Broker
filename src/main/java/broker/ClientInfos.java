@@ -1,11 +1,7 @@
 package broker;
 
-import common.Stock;
-
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
+import common.*;
+import javax.jms.*;
 import java.util.ArrayList;
 
 public class ClientInfos {
