@@ -70,9 +70,8 @@ public class JmsBrokerClient {
     }
     
     public void watch(String stockName) throws JMSException {
-        RegisterMessage regMsg = new RegisterMessage(stockName);
-        ObjectMessage msg = session.createObjectMessage(sellMsg);
-        producer.send(msg);
+        Topic topic = session.createTopic(stockName);
+        MessageConsumer topicConsumer = session.createConsumer(topic);
     }
 
     public void unwatch(String stockName) throws JMSException {
