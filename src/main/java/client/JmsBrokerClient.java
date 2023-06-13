@@ -9,13 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jms.*;
 
-import common.BuyMessage;
-import common.ListMessage;
-import common.RegisterMessage;
-import common.RequestListMessage;
-import common.SellMessage;
-import common.Stock;
-import common.UnregisterMessage;
+import common.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 
