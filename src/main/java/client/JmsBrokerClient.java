@@ -21,6 +21,12 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 public class JmsBrokerClient {
     private final String clientName;
+    private Session session;
+    private Queue consumerQ;
+    private Queue producerQ;
+    MessageConsumer consumer;
+    MessageProducer producer;
+    MessageListener listener;
 
     public JmsBrokerClient(String clientName) throws JMSException {
         this.clientName = clientName;
@@ -28,13 +34,13 @@ public class JmsBrokerClient {
         ActiveMQConnectionFactory conFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
         Connection con = conFactory.createConnection();
         con.start();
-        Session session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        Queue consumerQ = session.createQueue(clientName+"In");
-        Queue producerQ = session.createQueue(clientName+"Out");
-        MessageConsumer consumer = session.createConsumer(consumerQ);
-        MessageProducer producer = session.createProducer(producerQ);
-        MessageListener listener = new MessageListener() {
+        consumerQ = session.createQueue(clientName+"In");
+        producerQ = session.createQueue(clientName+"Out");
+        consumer = session.createConsumer(consumerQ);
+        producer = session.createProducer(producerQ);
+        listener = new MessageListener() {
             public void onMessage(Message msg) {
                 if(msg instanceof ObjectMessage) {
 
@@ -54,10 +60,16 @@ public class JmsBrokerClient {
     
     public void buy(String stockName, int amount) throws JMSException {
         //TODO
+        BuyMessage buyMsg = new BuyMessage(stockName, amount);
+        ObjectMessage msg = session.createObjectMessage(buyMsg);
+        producer.send(msg);
     }
     
     public void sell(String stockName, int amount) throws JMSException {
         //TODO
+        SellMessage sellMsg = new SellMessage(stockName, amount);
+        ObjectMessage msg = session.createObjectMessage(sellMsg);
+        producer.send(msg);
     }
     
     public void watch(String stockName) throws JMSException {
@@ -65,7 +77,9 @@ public class JmsBrokerClient {
     }
     
     public void unwatch(String stockName) throws JMSException {
-        //TODO
+        UnregisterMessage unregMsg = new UnregisterMessage(stockName);
+        ObjectMessage msg = session.createObjectMessage(unregMsg);
+        producer.send(msg);
     }
     
     public void quit() throws JMSException {
