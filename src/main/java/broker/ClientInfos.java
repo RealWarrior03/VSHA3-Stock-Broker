@@ -35,8 +35,28 @@ public class ClientInfos {
 
                     }
                     else if(msg instanceof BuyMessage) {
-                        broker.buy();
+                        BrokerMessage answerMsg;
 
+                        //run buy function and checking if it was successful or not
+                        try {
+                            if(broker.buy(((BuyMessage) msg).getStockName(), ((BuyMessage) msg).getAmount()) == 1){
+                                answerMsg = msg;
+                            }else{
+                                answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
+                                };
+                            }
+                        } catch (JMSException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        //sending msg to client
+                        ObjectMessage returnMessage = null;
+                        try {
+                            returnMessage = broker.session.createObjectMessage(answerMsg);
+                            producer.send(returnMessage);
+                        } catch (JMSException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }

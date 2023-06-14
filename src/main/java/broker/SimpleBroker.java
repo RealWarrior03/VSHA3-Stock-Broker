@@ -14,8 +14,7 @@ public class SimpleBroker {
     Session session;
     SimpleBroker myself = this;
 
-    private List<Stock> stockList;
-    ArrayList<StockInfos> stockInfos;
+    ArrayList<StockInfos> stockList;
     ArrayList<ClientInfos> clientInfos;
 
 
@@ -42,7 +41,6 @@ public class SimpleBroker {
     };
     
     public SimpleBroker(List<Stock> stockList) throws JMSException {
-        this.stockList = stockList;
         conFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
         con = conFactory.createConnection();
         con.start();
@@ -55,20 +53,33 @@ public class SimpleBroker {
         for(Stock stock : stockList) {
             Topic topic = session.createTopic(stock.getName());
             MessageProducer producer = session.createProducer(topic);
-            stockInfos.add(new StockInfos(stock, producer));
+            stockList.add(new StockInfos(stock, producer));
         }
     }
 
     public List<Stock> getStocks(){
-        return stockList;
+        ArrayList<Stock> stocks;
+        for(StockInfos si : stockList){
+            stocks.add(si.stock);
+        }
+
+        return stocks;
     }
     
     public void stop() throws JMSException {
         //TODO
     }
     
+    // returns -1 if there was a problem, returns 1 if successful
     public synchronized int buy(String stockName, int amount) throws JMSException {
-        //TODO
+        Stock stock = findStockInList(stockList, stockName);
+        if(stock == null){return -1;}   //we dont have a stock with that name
+
+        if(stock.getAvailableCount() >= amount){    //stock was found and required amount is available
+            stock.setStockCount(stock.getAvailableCount() - amount);
+            return 1;
+        }
+
         return -1;
     }
     
@@ -78,10 +89,15 @@ public class SimpleBroker {
     }
     
     public synchronized List<Stock> getStockList() {
-        List<Stock> stockList = new ArrayList<>();
+        return this.stockList;
+    }
 
-        /* TODO: populate stockList */
-
-        return stockList;
+    private Stock findStockInList(ArrayList<StockInfos> stocks,String stockname){
+        for(StockInfos s : stocks){
+            if (s.getName().equals(stockname)){
+                return s.stock;
+            }
+        }
+        return null;
     }
 }
