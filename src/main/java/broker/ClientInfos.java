@@ -20,9 +20,9 @@ public class ClientInfos {
 
         consumer.setMessageListener(new MessageListener() {
             @Override
-            public void onMessage(Message message) { //TODO functionality
+            public void onMessage(Message message) {
                 if(message instanceof ObjectMessage) {
-                    BrokerMessage msg = ((ObjectMessage) message).getObject();
+                    BrokerMessage msg = ((ObjectMessage) message).getObject();  //TODO fix error
                     if(msg instanceof RequestListMessage) {
                         try {
                             ObjectMessage returnMessage = broker.session.createObjectMessage(new ListMessage(broker.getStocks()));
@@ -32,7 +32,7 @@ public class ClientInfos {
                         }
                     }
                     else if(msg instanceof SellMessage){
-
+                        //TODO functionality
                     }
                     else if(msg instanceof BuyMessage) {
                         BrokerMessage answerMsg;

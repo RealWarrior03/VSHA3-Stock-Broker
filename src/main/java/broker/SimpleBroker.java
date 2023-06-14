@@ -88,7 +88,7 @@ public class SimpleBroker {
         return -1;
     }
     
-    public synchronized List<Stock> getStockList() {
+    public synchronized List<StockInfos> getStockList() {
         return this.stockList;
     }
 
