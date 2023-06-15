@@ -1,4 +1,4 @@
-# How to excute our code
+# How to execute our code
 - soon
 
 # To-Do
