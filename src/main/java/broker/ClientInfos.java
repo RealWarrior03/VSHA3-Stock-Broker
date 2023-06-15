@@ -56,9 +56,12 @@ public class ClientInfos {
         if(stockToBeChanged == null) {
             answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
             };
-        }else{
-
+        } else if (stockToBeChanged.getStockCount() < msg.getAmount()) {
+            answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
+            };
+        } else{
             int result = 0;
+            
             try {
                 result = broker.sell(msg.getStockName(), msg.getAmount());
             } catch (JMSException e) {
