@@ -76,15 +76,23 @@ public class SimpleBroker {
         if(stock == null){return -1;}   //we dont have a stock with that name
 
         if(stock.getAvailableCount() >= amount){    //stock was found and required amount is available
-            stock.setStockCount(stock.getAvailableCount() - amount);
+            stock.setAvailableCount(stock.getAvailableCount() - amount);
             return 1;
         }
 
         return -1;
     }
-    
+
+    // returns -1 if there was a problem, returns 1 if successful
     public synchronized int sell(String stockName, int amount) throws JMSException {
-        //TODO
+        Stock stock = findStockInList(stockList, stockName);
+        if(stock == null){return -1;}   //no such stock is offered
+
+        if(stock.getStockCount() - stock.getAvailableCount() >= amount){    //stock was found and required amount is available
+            stock.setAvailableCount(stock.getAvailableCount() + amount);
+            return 1;
+        }
+
         return -1;
     }
     
@@ -92,7 +100,7 @@ public class SimpleBroker {
         return this.stockList;
     }
 
-    private Stock findStockInList(ArrayList<StockInfos> stocks,String stockname){
+    public Stock findStockInList(ArrayList<StockInfos> stocks,String stockname){
         for(StockInfos s : stocks){
             if (s.getName().equals(stockname)){
                 return s.stock;

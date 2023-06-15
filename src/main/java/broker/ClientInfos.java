@@ -15,8 +15,9 @@ public class ClientInfos {
         this.consumer = consumer;
         this.producer = producer;
         this.clientName = clientName;
-        this.stocks = new ArrayList<>();
         this.broker = broker;
+
+        this.stocks = new ArrayList<>();
 
         consumer.setMessageListener(new MessageListener() {
             @Override
@@ -32,34 +33,105 @@ public class ClientInfos {
                         }
                     }
                     else if(msg instanceof SellMessage){
-                        //TODO functionality
+                        sellingStockClient((SellMessage) msg);
                     }
                     else if(msg instanceof BuyMessage) {
-                        BrokerMessage answerMsg;
-
-                        //run buy function and checking if it was successful or not
-                        try {
-                            if(broker.buy(((BuyMessage) msg).getStockName(), ((BuyMessage) msg).getAmount()) == 1){
-                                answerMsg = msg;
-                            }else{
-                                answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
-                                };
-                            }
-                        } catch (JMSException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        //sending msg to client
-                        ObjectMessage returnMessage = null;
-                        try {
-                            returnMessage = broker.session.createObjectMessage(answerMsg);
-                            producer.send(returnMessage);
-                        } catch (JMSException e) {
-                            throw new RuntimeException(e);
-                        }
+                        buyingStockClient((BuyMessage) msg);
                     }
                 }
             }
         });
+    }
+
+    private void sellingStockClient(SellMessage msg){
+        BrokerMessage answerMsg;
+
+        Stock stockToBeChanged = null;
+        for (Stock s : stocks) {
+            if (s.getName().equals(msg.getStockName())) {
+                stockToBeChanged = s;
+                break;
+            }
+        }
+        if(stockToBeChanged == null) {
+            answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
+            };
+        }else{
+
+            int result = 0;
+            try {
+                result = broker.sell(msg.getStockName(), msg.getAmount());
+            } catch (JMSException e) {
+                throw new RuntimeException(e);
+            }
+
+            if(result == 1){
+                answerMsg = msg;
+
+                //update list of bought stocks
+                Stock changedStock = null;
+                for(Stock s : stocks){
+                    if (s.getName().equals(msg.getStockName())){
+                        changedStock = s;
+                        break;
+                    }
+                }
+                if(changedStock != null){
+                    changedStock.setStockCount(changedStock.getStockCount() - msg.getAmount());
+                }
+            }else{
+                answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
+                };
+            }
+        }
+
+        //sending msg to client
+        ObjectMessage returnMessage = null;
+        try {
+            returnMessage = broker.session.createObjectMessage(answerMsg);
+            producer.send(returnMessage);
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void buyingStockClient(BuyMessage msg){
+        BrokerMessage answerMsg;
+
+        //run buy function in broker and checking if it was successful or not
+        try {
+            if(broker.buy(((BuyMessage) msg).getStockName(), ((BuyMessage) msg).getAmount()) == 1){
+                answerMsg = msg;
+
+                //updates list of bought stocks by client or adds stock
+                Stock changedStock = null;
+                for(Stock s : stocks){
+                    if (s.getName().equals(((BuyMessage) msg).getStockName())){
+                        changedStock = s;
+                        break;
+                    }
+                }
+                if(changedStock != null){
+                    changedStock.setStockCount(changedStock.getStockCount() + ((BuyMessage) msg).getAmount());
+                }else{
+                    stocks.add(new Stock(((BuyMessage) msg).getStockName(), ((BuyMessage) msg).getAmount(), 0.0));
+                }
+
+            }else{
+                answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
+                };
+            }
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
+
+        //sending msg to client
+        ObjectMessage returnMessage = null;
+        try {
+            returnMessage = broker.session.createObjectMessage(answerMsg);
+            producer.send(returnMessage);
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
