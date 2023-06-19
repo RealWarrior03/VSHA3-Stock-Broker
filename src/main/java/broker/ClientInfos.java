@@ -2,6 +2,7 @@ package broker;
 
 import common.*;
 import javax.jms.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class ClientInfos {
@@ -11,7 +12,7 @@ public class ClientInfos {
     ArrayList<Stock> stocks;
     SimpleBroker broker;
 
-    public ClientInfos(MessageConsumer consumer, MessageProducer producer, String clientName, SimpleBroker broker) {
+    public ClientInfos(MessageConsumer consumer, MessageProducer producer, String clientName, SimpleBroker broker) throws JMSException {
         this.consumer = consumer;
         this.producer = producer;
         this.clientName = clientName;
@@ -23,7 +24,12 @@ public class ClientInfos {
             @Override
             public void onMessage(Message message) {
                 if(message instanceof ObjectMessage) {
-                    BrokerMessage msg = ((ObjectMessage) message).getObject();  //TODO fix error
+                    BrokerMessage msg = null;  //TODO fix error
+                    try {
+                        msg = (BrokerMessage) ((ObjectMessage) message).getObject();
+                    } catch (JMSException e) {
+                        throw new RuntimeException(e);
+                    }
                     if(msg instanceof RequestListMessage) {
                         try {
                             ObjectMessage returnMessage = broker.session.createObjectMessage(new ListMessage(broker.getStocks()));
@@ -61,7 +67,7 @@ public class ClientInfos {
             };
         } else{
             int result = 0;
-            
+
             try {
                 result = broker.sell(msg.getStockName(), msg.getAmount());
             } catch (JMSException e) {

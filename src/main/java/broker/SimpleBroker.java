@@ -14,19 +14,30 @@ public class SimpleBroker {
     Session session;
     SimpleBroker myself = this;
 
-    ArrayList<StockInfos> stockList;
+    ArrayList<StockInfos> stockList = new ArrayList<>();
     ArrayList<ClientInfos> clientInfos;
 
 
     private final MessageListener listener = new MessageListener() {
         @Override
         public void onMessage(Message msg) {
+            /*
             if(msg instanceof ObjectMessage) {
-                message = msg.getBody();
+                message = ((ObjectMessage) msg).getObject();
 
             }
+             */
 
-            if(msg instanceof RegisterMessage) {
+            System.out.println("Message received");
+            BrokerMessage bm = null;  //TODO fix error
+            try {
+                bm = (BrokerMessage) ((ObjectMessage) msg).getObject();
+            } catch (JMSException e) {
+                throw new RuntimeException(e);
+            }
+
+            if(bm instanceof RegisterMessage) {
+                System.out.println(((RegisterMessage) bm).getClientName());
                 try {
                     MessageConsumer consumer = session.createConsumer(session.createQueue(((RegisterMessage) msg).getClientName()+"Out"));
                     MessageProducer producer = session.createProducer(session.createQueue(((RegisterMessage) msg).getClientName()+"In"));
@@ -53,12 +64,12 @@ public class SimpleBroker {
         for(Stock stock : stockList) {
             Topic topic = session.createTopic(stock.getName());
             MessageProducer producer = session.createProducer(topic);
-            stockList.add(new StockInfos(stock, producer));
+            this.stockList.add(new StockInfos(stock, producer));
         }
     }
 
     public List<Stock> getStocks(){
-        ArrayList<Stock> stocks;
+        ArrayList<Stock> stocks = null;
         for(StockInfos si : stockList){
             stocks.add(si.stock);
         }
