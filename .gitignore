@@ -7,6 +7,9 @@
 !src/main/java/broker/*
 !src/main/java/client/*
 !src/main/java/common/*
+!src/main/java/broker/StockInfos.java
+!src/main/java/common/UnregisterMessage.java
+!src/main/java/common/WatchMessage.java
 !pom.xml
 
 #The files above are added, disregarding in which subdirectory they are located
