@@ -22,8 +22,13 @@ public class JmsBrokerClient {
     MessageConsumer consumer;
     MessageProducer producer;
     MessageListener listener;
+    int budget;
+
+    List<Stock> stocklist;
 
     public JmsBrokerClient(String clientName) throws JMSException {
+        budget =1000;
+
         this.clientName = clientName;
 
         ActiveMQConnectionFactory conFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
@@ -49,9 +54,13 @@ public class JmsBrokerClient {
             }
         };
         consumer.setMessageListener(listener);
+
         RegisterMessage regMsg = new RegisterMessage(clientName);
-        ObjectMessage msg = session.createObjectMessage(regMsg);
-        producer.send(msg);
+        producer.send(session.createObjectMessage(regMsg));
+
+        RequestListMessage reqListMsg= new RequestListMessage();
+        producer.send(session.createObjectMessage(reqListMsg));
+
         /* TODO: initialize connection, sessions, consumer, producer, etc. */
     }
     
