@@ -39,9 +39,9 @@ public class SimpleBroker {
             if(bm instanceof RegisterMessage) {
                 System.out.println(((RegisterMessage) bm).getClientName());
                 try {
-                    MessageConsumer consumer = session.createConsumer(session.createQueue(((RegisterMessage) msg).getClientName()+"Out"));
-                    MessageProducer producer = session.createProducer(session.createQueue(((RegisterMessage) msg).getClientName()+"In"));
-                    ClientInfos newClient = new ClientInfos(consumer, producer, ((RegisterMessage) msg).getClientName(), myself);
+                    MessageConsumer consumer = session.createConsumer(session.createQueue(((RegisterMessage) bm).getClientName()+"Out"));
+                    MessageProducer producer = session.createProducer(session.createQueue(((RegisterMessage) bm).getClientName()+"In"));
+                    ClientInfos newClient = new ClientInfos(consumer, producer, ((RegisterMessage) bm).getClientName(), myself);
                     clientInfos.add(newClient);
 
                 } catch (JMSException e) {
@@ -53,6 +53,7 @@ public class SimpleBroker {
     
     public SimpleBroker(List<Stock> stockList) throws JMSException {
         conFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+        conFactory.setTrustAllPackages(true);
         con = conFactory.createConnection();
         con.start();
         session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -66,10 +67,12 @@ public class SimpleBroker {
             MessageProducer producer = session.createProducer(topic);
             this.stockList.add(new StockInfos(stock, producer));
         }
+
+        clientInfos = new ArrayList<>();
     }
 
     public List<Stock> getStocks(){
-        ArrayList<Stock> stocks = null;
+        ArrayList<Stock> stocks = new ArrayList<>();
         for(StockInfos si : stockList){
             stocks.add(si.stock);
         }

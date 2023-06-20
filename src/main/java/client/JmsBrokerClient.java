@@ -34,26 +34,32 @@ public class JmsBrokerClient {
         this.clientName = clientName;
 
         ActiveMQConnectionFactory conFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+        conFactory.setTrustAllPackages(true);
         Connection con = conFactory.createConnection();
         con.start();
         session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
         consumerQ = session.createQueue(clientName+"In");
         producerQ = session.createQueue(clientName+"Out");
+        Queue registerQ = session.createQueue("registrationQueue");
         consumer = session.createConsumer(consumerQ);
         producer = session.createProducer(producerQ);
+        MessageProducer register = session.createProducer(registerQ);
         listener = new MessageListener() {
             public void onMessage(Message message) {
-                if(message instanceof ObjectMessage) {
-                    ListMessage msg = null;
+                if (message instanceof ObjectMessage) {
+                    BrokerMessage msg = null;  //TODO fix error
                     try {
-                        msg = (ListMessage) ((ObjectMessage) message).getObject();
-                        stocklist = msg.getStocks();
+                        msg = (BrokerMessage) ((ObjectMessage) message).getObject();
+                    } catch (JMSException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (msg instanceof ListMessage) {
+                        System.out.println("Available stocks:");
+                        stocklist = ((ListMessage) msg).getStocks();
                         for (Stock stock : stocklist) {
                             System.out.println(stock.toString());
                         }
-                    } catch (JMSException e) {
-                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -61,7 +67,7 @@ public class JmsBrokerClient {
         consumer.setMessageListener(listener);
 
         RegisterMessage regMsg = new RegisterMessage(clientName);
-        producer.send(session.createObjectMessage(regMsg));
+        register.send(session.createObjectMessage(regMsg));
 
         RequestListMessage reqListMsg= new RequestListMessage();
         producer.send(session.createObjectMessage(reqListMsg));
@@ -70,10 +76,9 @@ public class JmsBrokerClient {
     }
     
     public void requestList() throws JMSException {
-        //TODO
-        /*ListMessage listMsg = new ListMessage();
+        RequestListMessage listMsg = new RequestListMessage();
         ObjectMessage msg = session.createObjectMessage(listMsg);
-        producer.send(msg);*/
+        producer.send(msg);
     }
     
     public void buy(String stockName, int amount) throws JMSException,Error {
