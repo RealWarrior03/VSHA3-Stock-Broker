@@ -44,7 +44,7 @@ public class JmsBrokerClient {
         producer = session.createProducer(producerQ);
         MessageProducer register = session.createProducer(registerQ);
         consumerListener = new MessageListener() {
-            public void onMessage(Message message) {
+            public void onMessage(Message message) throws Error {
                 if (message instanceof ObjectMessage) {
                     BrokerMessage msg = null;  //TODO fix error
                     try {
@@ -57,6 +57,28 @@ public class JmsBrokerClient {
                         stocklist = ((ListMessage) msg).getStocks();
                         for (Stock stock : stocklist) {
                             System.out.println(stock.toString());
+                        }
+                    }
+                    if (msg instanceof BuyMessage) {
+                        try {
+                            buy_response((BuyMessage) msg);
+                        } catch (JMSException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    if (msg instanceof SellMessage) {
+                        try {
+                            sell_response((SellMessage) msg);
+                        } catch (JMSException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    if (msg instanceof ErrorMessage) {
+                        if (msg.getType().equals(BrokerMessage.Type.STOCK_BUY_ERR)) {
+                            throw new Error("Buying "+ ((ErrorMessage) msg).getAmount() +" units of Stock "+ ((ErrorMessage) msg).getStockName()+"didn't work.");
+                        }
+                        if (msg.getType().equals(BrokerMessage.Type.STOCK_SELL_ERR)) {
+                            throw new Error("Selling "+ ((ErrorMessage) msg).getAmount() +" units of Stock "+ ((ErrorMessage) msg).getStockName()+"didn't work.");
                         }
                     }
                 }
@@ -81,29 +103,30 @@ public class JmsBrokerClient {
     }
     
     public void buy(String stockName, int amount) throws JMSException {
-        //TODO auf acknowledgement warten ???
         double price = getPriceOfStock(stockName);
         if (budget >= price*amount) {
             BuyMessage buyMsg = new BuyMessage(stockName, amount);
             ObjectMessage msg = session.createObjectMessage(buyMsg);
             producer.send(msg);
-            budget -= price*amount;
         } else {
             System.out.println("you better earn some money, budget is too low");
         }
     }
-    
+
+    public void buy_response(BuyMessage response) throws  JMSException {
+        budget -= getPriceOfStock(response.getStockName())* response.getAmount();
+        System.out.println("Buying "+ response.getAmount() +" units of "+ response.getStockName() +" was succesfull! Your new budget is "+ budget);
+    }
+
     public void sell(String stockName, int amount) throws JMSException {
-        //TODO Was tun wenn der verkauf nicht durchgeht? Bisher optimistisch implementiert
-        int owned = 0;
-        if (amount >= owned) {
-            SellMessage sellMsg = new SellMessage(stockName, amount);
-            ObjectMessage msg = session.createObjectMessage(sellMsg);
-            producer.send(msg);
-            budget += getPriceOfStock(stockName) * amount;
-        } else {
-            System.out.println("you don't even have that much, can't sell that");
-        }
+        SellMessage sellMsg = new SellMessage(stockName, amount);
+        ObjectMessage msg = session.createObjectMessage(sellMsg);
+        producer.send(msg);
+    }
+
+    public void sell_response(SellMessage response) throws  JMSException {
+        budget += getPriceOfStock(response.getStockName())* response.getAmount();
+        System.out.println("Selling "+ response.getAmount() +" units of "+ response.getStockName() +" was succesfull! Your new budget is "+ budget);
     }
     
     public void watch(String stockName) throws JMSException {
