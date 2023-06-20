@@ -27,6 +27,7 @@ public class JmsBrokerClient {
     int budget;
 
     List<Stock> stocklist;
+    List<MessageConsumer> topicConsumers;
 
     public JmsBrokerClient(String clientName) throws JMSException {
         budget = 1000;
@@ -115,7 +116,6 @@ public class JmsBrokerClient {
     public void quit() throws JMSException {
         UnregisterMessage unRegMsg = new UnregisterMessage(clientName);
         producer.send(session.createObjectMessage(unRegMsg));
-
     }
 
     private double getPriceOfStock(String stockName)throws Error{

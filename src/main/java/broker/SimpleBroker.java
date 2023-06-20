@@ -81,7 +81,7 @@ public class SimpleBroker {
     }
     
     public void stop() throws JMSException {
-        //TODO
+        con.stop();
     }
     
     // returns -1 if there was a problem, returns 1 if successful
