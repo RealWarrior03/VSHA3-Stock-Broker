@@ -11,6 +11,7 @@ public class ClientInfos {
     String clientName;
     ArrayList<Stock> stocks;
     SimpleBroker broker;
+    ClientInfos myself = this;
 
     public ClientInfos(MessageConsumer consumer, MessageProducer producer, String clientName, SimpleBroker broker) throws JMSException {
         this.consumer = consumer;
@@ -43,6 +44,15 @@ public class ClientInfos {
                     }
                     else if(msg instanceof BuyMessage) {
                         buyingStockClient((BuyMessage) msg);
+                    }
+                    else if(msg instanceof UnregisterMessage){
+                        try {
+                            consumer.close();
+                            producer.close();
+                        } catch (JMSException e) {
+                            throw new RuntimeException(e);
+                        }
+                        broker.deleteClientFromList(myself);
                     }
                 }
             }

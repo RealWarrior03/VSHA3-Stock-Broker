@@ -105,7 +105,8 @@ public class SimpleBroker {
 
         if(stock.getAvailableCount() >= amount){    //stock was found and required amount is available
             stock.setAvailableCount(stock.getAvailableCount() - amount);
-            informStockChange(stockName, amount);
+
+            informStockChange(stockName);
             return 1;
         }
 
@@ -122,18 +123,18 @@ public class SimpleBroker {
         if(stock.getStockCount() - stock.getAvailableCount() >= amount){    //stock was found and required amount is available
             stock.setAvailableCount(stock.getAvailableCount() + amount);
 
-            informStockChange(stockName, amount);
+            informStockChange(stockName);
             return 1;
         }
 
         return -1;
     }
 
-    private void informStockChange(String stockName, int amount){
+    private void informStockChange(String stockName){
         //inform subs of stock topic that list has changed
         ObjectMessage returnMessage = null;
         try {
-            returnMessage = session.createObjectMessage(new AnnouncementMessage(amount + " stocks from " + stockName + " have been sold"));
+            returnMessage = session.createObjectMessage(new AnnouncementMessage(stockName + " changed, the server has " + findStockInList(stockList, stockName).stock.getAvailableCount() + " available stocks"));
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }
@@ -153,4 +154,9 @@ public class SimpleBroker {
         }
         return null;
     }
+
+    public void deleteClientFromList(ClientInfos client){
+        clientInfos.remove(client);
+    }
+
 }
