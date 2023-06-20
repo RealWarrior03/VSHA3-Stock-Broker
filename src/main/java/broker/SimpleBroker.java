@@ -81,7 +81,19 @@ public class SimpleBroker {
     }
     
     public void stop() throws JMSException {
-        con.stop();
+        try {
+            for (ClientInfos ci : clientInfos) {
+                ci.producer.close();
+                ci.consumer.close();
+            }
+            for (StockInfos si : stockList) {
+                si.producer.close();
+            }
+            con.stop();
+            session.close();
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     // returns -1 if there was a problem, returns 1 if successful
