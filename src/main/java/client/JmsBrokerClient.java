@@ -97,11 +97,15 @@ public class JmsBrokerClient {
     
     public void sell(String stockName, int amount) throws JMSException {
         //TODO Was tun wenn der verkauf nicht durchgeht? Bisher optimistisch implementiert
-
-        SellMessage sellMsg = new SellMessage(stockName, amount);
-        ObjectMessage msg = session.createObjectMessage(sellMsg);
-        producer.send(msg);
-        budget+= getPriceOfStock(stockName) * amount;
+        int owned = 0;
+        if (amount >= owned) {
+            SellMessage sellMsg = new SellMessage(stockName, amount);
+            ObjectMessage msg = session.createObjectMessage(sellMsg);
+            producer.send(msg);
+            budget += getPriceOfStock(stockName) * amount;
+        } else {
+            System.out.println("you don't even have that much, can't sell that");
+        }
     }
     
     public void watch(String stockName) throws JMSException {
@@ -184,7 +188,7 @@ public class JmsBrokerClient {
                             if(task.length == 2) {
                                 client.unwatch(task[1]);
                             } else {
-                                System.out.println("Correct usage: watch [stock]");
+                                System.out.println("Correct usage: unwatch [stock]");
                             }
                             break;
                         default:
