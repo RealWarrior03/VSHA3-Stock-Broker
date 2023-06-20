@@ -49,6 +49,9 @@ public class JmsBrokerClient {
                     try {
                         msg = (ListMessage) ((ObjectMessage) message).getObject();
                         stocklist = msg.getStocks();
+                        for (Stock stock : stocklist) {
+                            System.out.println(stock.toString());
+                        }
                     } catch (JMSException e) {
                         throw new RuntimeException(e);
                     }
