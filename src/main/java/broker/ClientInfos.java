@@ -24,7 +24,7 @@ public class ClientInfos {
             @Override
             public void onMessage(Message message) {
                 if(message instanceof ObjectMessage) {
-                    BrokerMessage msg = null;  //TODO fix error
+                    BrokerMessage msg = null;
                     try {
                         msg = (BrokerMessage) ((ObjectMessage) message).getObject();
                     } catch (JMSException e) {
@@ -60,11 +60,9 @@ public class ClientInfos {
             }
         }
         if(stockToBeChanged == null) {
-            answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
-            };
+            answerMsg = new ErrorMessage(BrokerMessage.Type.STOCK_SELL_ERR, msg.getStockName(), msg.getAmount());
         } else if (stockToBeChanged.getStockCount() < msg.getAmount()) {
-            answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
-            };
+            answerMsg = new ErrorMessage(BrokerMessage.Type.STOCK_SELL_ERR, msg.getStockName(), msg.getAmount());
         } else{
             int result = 0;
 
@@ -89,7 +87,7 @@ public class ClientInfos {
                     changedStock.setStockCount(changedStock.getStockCount() - msg.getAmount());
                 }
             }else{
-                answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
+                answerMsg = new ErrorMessage(BrokerMessage.Type.STOCK_SELL_ERR, msg.getStockName(), msg.getAmount()); {    //TODO exchange with ErrorMessage
                 };
             }
         }
@@ -127,7 +125,7 @@ public class ClientInfos {
                 }
 
             }else{
-                answerMsg = new BrokerMessage(BrokerMessage.Type.SYSTEM_ERROR) {
+                answerMsg = new ErrorMessage(BrokerMessage.Type.STOCK_BUY_ERR, msg.getStockName(), msg.getAmount()); {
                 };
             }
         } catch (JMSException e) {

@@ -93,6 +93,7 @@ public class SimpleBroker {
 
         if(stock.getAvailableCount() >= amount){    //stock was found and required amount is available
             stock.setAvailableCount(stock.getAvailableCount() - amount);
+            informStockChange(stockName, amount);
             return 1;
         }
 
@@ -112,6 +113,18 @@ public class SimpleBroker {
         }
 
         return -1;
+    }
+
+    private void informStockChange(String stockName, int amount){
+        //inform subs of stock topic that list has changed
+        ObjectMessage returnMessage = null;
+        try {
+            returnMessage = session.createObjectMessage(new AnnouncementMessage(amount + " stocks from " + stockName + " have been sold"));
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
+        StockInfos changedStock = findStockInList(stockList, stockName);
+        changedStock.informSubs(returnMessage);
     }
     
     public synchronized List<StockInfos> getStockList() {
