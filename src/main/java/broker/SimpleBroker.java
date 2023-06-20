@@ -109,6 +109,8 @@ public class SimpleBroker {
 
         if(stock.getStockCount() - stock.getAvailableCount() >= amount){    //stock was found and required amount is available
             stock.setAvailableCount(stock.getAvailableCount() + amount);
+
+            informStockChange(stockName, amount);
             return 1;
         }
 

@@ -4,14 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jms.*;
 
-import broker.StockInfos;
 import common.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
@@ -23,7 +20,7 @@ public class JmsBrokerClient {
     private Queue producerQ;
     MessageConsumer consumer;
     MessageProducer producer;
-    MessageListener listener;
+    MessageListener consumerListener;
     int budget;
 
     List<Stock> stocklist;
@@ -46,7 +43,7 @@ public class JmsBrokerClient {
         consumer = session.createConsumer(consumerQ);
         producer = session.createProducer(producerQ);
         MessageProducer register = session.createProducer(registerQ);
-        listener = new MessageListener() {
+        consumerListener = new MessageListener() {
             public void onMessage(Message message) {
                 if (message instanceof ObjectMessage) {
                     BrokerMessage msg = null;  //TODO fix error
@@ -65,7 +62,8 @@ public class JmsBrokerClient {
                 }
             }
         };
-        consumer.setMessageListener(listener);
+        consumer.setMessageListener(consumerListener);
+        topicConsumers = new ArrayList<>();
 
         RegisterMessage regMsg = new RegisterMessage(clientName);
         register.send(session.createObjectMessage(regMsg));
@@ -82,7 +80,7 @@ public class JmsBrokerClient {
         producer.send(msg);
     }
     
-    public void buy(String stockName, int amount) throws JMSException,Error {
+    public void buy(String stockName, int amount) throws JMSException {
         //TODO auf acknowledgement warten ???
         double price = getPriceOfStock(stockName);
         if (budget >= price*amount) {
@@ -111,6 +109,25 @@ public class JmsBrokerClient {
     public void watch(String stockName) throws JMSException {
         Topic topic = session.createTopic(stockName);
         MessageConsumer topicConsumer = session.createConsumer(topic);
+        MessageListener topicListener = new MessageListener() {
+            @Override
+            public void onMessage(Message message) {
+                if (message instanceof ObjectMessage) {
+                    BrokerMessage msg = null;
+                    try {
+                        msg = (BrokerMessage) ((ObjectMessage) message).getObject();
+                    } catch (JMSException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (msg instanceof AnnouncementMessage) {
+                        String announcement = ((AnnouncementMessage) msg).getAnnouncemnet();
+                        System.out.println(announcement);
+                    }
+                }
+            }
+        };
+        topicConsumer.setMessageListener(topicListener);
+        topicConsumers.add(topicConsumer);
     }
 
     public void unwatch(String stockName) throws JMSException {
@@ -122,10 +139,10 @@ public class JmsBrokerClient {
         producer.send(session.createObjectMessage(unRegMsg));
     }
 
-    private double getPriceOfStock(String stockName)throws Error{
+    private double getPriceOfStock(String stockName) {
         Stock s = findStockInList(stockName);
-        if(s==null){
-            throw new Error("Stock Not Found");
+        if (s == null) {
+            System.out.println("Stock Not Found");
         }
         return s.getPrice();
     }
@@ -159,6 +176,7 @@ public class JmsBrokerClient {
                             client.quit();
                             System.out.println("Bye bye");
                             running = false;
+                            System.exit(0);
                             break;
                         case "list":
                             client.requestList();
