@@ -89,7 +89,7 @@ public class JmsBrokerClient {
             producer.send(msg);
             budget -= price*amount;
         } else {
-            throw new Error("you better earn some money, budget is too low");
+            System.out.println("you better earn some money, budget is too low");
         }
     }
     
