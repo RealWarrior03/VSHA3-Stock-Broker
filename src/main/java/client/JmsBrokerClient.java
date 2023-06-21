@@ -195,6 +195,12 @@ public class JmsBrokerClient {
                 
                 synchronized(client) {
                     switch(task[0].toLowerCase()) {
+                        case "help":
+                            System.out.println("budget, quit, list, buy [stock] [amount], sell [stock] [amount], watch [stock], unwatch [stock]");
+                            break;
+                        case "budget":
+                            System.out.println("Your budget is: " + client.budget);
+                            break;
                         case "quit":
                             client.quit();
                             System.out.println("Bye bye");
@@ -206,14 +212,22 @@ public class JmsBrokerClient {
                             break;
                         case "buy":
                             if(task.length == 3) {
-                                client.buy(task[1], Integer.parseInt(task[2]));
+                                try{
+                                    client.buy(task[1], Integer.parseInt(task[2]));
+                                }catch (NumberFormatException e){
+                                    System.out.println("Correct usage: sell [stock] [amount]");
+                                }
                             } else {
                                 System.out.println("Correct usage: buy [stock] [amount]");
                             }
                             break;
                         case "sell":
                             if(task.length == 3) {
-                                client.sell(task[1], Integer.parseInt(task[2]));
+                                try{
+                                    client.sell(task[1], Integer.parseInt(task[2]));
+                                }catch (NumberFormatException e){
+                                    System.out.println("Correct usage: sell [stock] [amount]");
+                                }
                             } else {
                                 System.out.println("Correct usage: sell [stock] [amount]");
                             }
@@ -234,7 +248,7 @@ public class JmsBrokerClient {
                             break;
                         default:
                             System.out.println("Unknown command. Try one of:");
-                            System.out.println("quit, list, buy, sell, watch, unwatch");
+                            System.out.println("budget, quit, list, buy [stock] [amount], sell [stock] [amount], watch [stock], unwatch [stock]");
                     }
                 }
             }
