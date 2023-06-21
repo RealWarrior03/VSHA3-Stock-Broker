@@ -12,7 +12,7 @@ public class JmsBrokerServer {
     public static void main(String[] args) {
         try {
             List<Stock> stocks = new ArrayList<>();
-            stocks.add(new Stock("Heckler&Koch", 74, 32));
+            stocks.add(new Stock("Cola", 30, 1));
             stocks.add(new Stock("Nestle", 49, 666));
             stocks.add(new Stock("Tencent", 83, 65));
             /*
