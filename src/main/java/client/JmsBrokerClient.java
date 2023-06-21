@@ -154,7 +154,10 @@ public class JmsBrokerClient {
     }
 
     public void unwatch(String stockName) throws JMSException {
-        session.unsubscribe(stockName);
+        // TODO: nicht alle sondern nur den mit dem namen schließen
+        for (MessageConsumer tc : topicConsumers) {
+            tc.close();
+        }
     }
     
     public void quit() throws JMSException {
