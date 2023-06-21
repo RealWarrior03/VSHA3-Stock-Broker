@@ -24,6 +24,7 @@ public class JmsBrokerClient {
     int budget;
 
     List<Stock> stocklist;
+    List<String> topicConsumerNames;
     List<MessageConsumer> topicConsumers;
 
     public JmsBrokerClient(String clientName) throws JMSException {
@@ -86,6 +87,7 @@ public class JmsBrokerClient {
         };
         consumer.setMessageListener(consumerListener);
         topicConsumers = new ArrayList<>();
+        topicConsumerNames = new ArrayList<>();
 
         RegisterMessage regMsg = new RegisterMessage(clientName);
         register.send(session.createObjectMessage(regMsg));
@@ -129,7 +131,7 @@ public class JmsBrokerClient {
         System.out.println("Selling "+ response.getAmount() +" units of "+ response.getStockName() +" was succesfull! Your new budget is "+ budget);
     }
     
-    public void watch(String stockName) throws JMSException {
+    public synchronized void watch(String stockName) throws JMSException {
         Topic topic = session.createTopic(stockName);
         MessageConsumer topicConsumer = session.createConsumer(topic);
         MessageListener topicListener = new MessageListener() {
@@ -151,13 +153,21 @@ public class JmsBrokerClient {
         };
         topicConsumer.setMessageListener(topicListener);
         topicConsumers.add(topicConsumer);
+        topicConsumerNames.add(stockName);
     }
 
     public void unwatch(String stockName) throws JMSException {
         // TODO: nicht alle sondern nur den mit dem namen schließen
-        for (MessageConsumer tc : topicConsumers) {
-            tc.close();
+        int i;
+        for (i = 0; i < topicConsumerNames.size(); i++) {
+            if(topicConsumerNames.get(i).equals(stockName)){
+                break;
+            }
         }
+
+        topicConsumerNames.remove(i);
+        topicConsumers.get(i).close();
+        topicConsumers.remove(i);
     }
     
     public void quit() throws JMSException {
