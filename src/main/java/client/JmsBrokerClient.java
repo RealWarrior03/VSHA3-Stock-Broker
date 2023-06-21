@@ -106,6 +106,10 @@ public class JmsBrokerClient {
     
     public void buy(String stockName, int amount) throws JMSException {
         double price = getPriceOfStock(stockName);
+        if (amount < 0) {
+            System.out.println("You can't buy a negative amount of stocks, but nice try!");
+            return;
+        }
         if (budget >= price*amount) {
             BuyMessage buyMsg = new BuyMessage(stockName, amount);
             ObjectMessage msg = session.createObjectMessage(buyMsg);
@@ -121,6 +125,10 @@ public class JmsBrokerClient {
     }
 
     public void sell(String stockName, int amount) throws JMSException {
+        if (amount < 0) {
+            System.out.println("You can't sell a negative amount of stocks.");
+            return;
+        }
         SellMessage sellMsg = new SellMessage(stockName, amount);
         ObjectMessage msg = session.createObjectMessage(sellMsg);
         producer.send(msg);
@@ -174,6 +182,11 @@ public class JmsBrokerClient {
     public void quit() throws JMSException {
         UnregisterMessage unRegMsg = new UnregisterMessage(clientName);
         producer.send(session.createObjectMessage(unRegMsg));
+        producer.close();
+        consumer.close();
+        for(MessageConsumer tc : topicConsumers) {
+            tc.close();
+        }
     }
 
     private double getPriceOfStock(String stockName) {
