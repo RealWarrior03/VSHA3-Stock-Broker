@@ -157,17 +157,18 @@ public class JmsBrokerClient {
     }
 
     public void unwatch(String stockName) throws JMSException {
-        // TODO: nicht alle sondern nur den mit dem namen schließen
-        int i;
-        for (i = 0; i < topicConsumerNames.size(); i++) {
+        int x = -1;
+        for (int i = 0; i < topicConsumerNames.size(); i++) {
             if(topicConsumerNames.get(i).equals(stockName)){
-                break;
+                x = i;
             }
         }
 
-        topicConsumerNames.remove(i);
-        topicConsumers.get(i).close();
-        topicConsumers.remove(i);
+        if(x != -1){
+            topicConsumerNames.remove(x);
+            topicConsumers.get(x).close();
+            topicConsumers.remove(x);
+        }
     }
     
     public void quit() throws JMSException {
