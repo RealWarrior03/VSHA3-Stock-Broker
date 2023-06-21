@@ -46,7 +46,7 @@ public class JmsBrokerClient {
         consumerListener = new MessageListener() {
             public void onMessage(Message message) throws Error {
                 if (message instanceof ObjectMessage) {
-                    BrokerMessage msg = null;  //TODO fix error
+                    BrokerMessage msg;  //TODO fix error
                     try {
                         msg = (BrokerMessage) ((ObjectMessage) message).getObject();
                     } catch (JMSException e) {
@@ -75,10 +75,10 @@ public class JmsBrokerClient {
                     }
                     if (msg instanceof ErrorMessage) {
                         if (msg.getType().equals(BrokerMessage.Type.STOCK_BUY_ERR)) {
-                            throw new Error("Buying "+ ((ErrorMessage) msg).getAmount() +" units of Stock "+ ((ErrorMessage) msg).getStockName()+"didn't work.");
+                            System.out.println("Buying "+ ((ErrorMessage) msg).getAmount() +" units of Stock "+ ((ErrorMessage) msg).getStockName()+" didn't work.");
                         }
                         if (msg.getType().equals(BrokerMessage.Type.STOCK_SELL_ERR)) {
-                            throw new Error("Selling "+ ((ErrorMessage) msg).getAmount() +" units of Stock "+ ((ErrorMessage) msg).getStockName()+"didn't work.");
+                            System.out.println("Selling "+ ((ErrorMessage) msg).getAmount() +" units of Stock "+ ((ErrorMessage) msg).getStockName()+" didn't work.");
                         }
                     }
                 }
@@ -136,7 +136,7 @@ public class JmsBrokerClient {
             @Override
             public void onMessage(Message message) {
                 if (message instanceof ObjectMessage) {
-                    BrokerMessage msg = null;
+                    BrokerMessage msg;
                     try {
                         msg = (BrokerMessage) ((ObjectMessage) message).getObject();
                     } catch (JMSException e) {
@@ -166,6 +166,7 @@ public class JmsBrokerClient {
         Stock s = findStockInList(stockName);
         if (s == null) {
             System.out.println("Stock Not Found");
+            return -1;
         }
         return s.getPrice();
     }

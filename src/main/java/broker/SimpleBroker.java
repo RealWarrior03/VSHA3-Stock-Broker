@@ -99,6 +99,9 @@ public class SimpleBroker {
     // returns -1 if there was a problem, returns 1 if successful
     public synchronized int buy(String stockName, int amount) throws JMSException {
         StockInfos stockinfo = findStockInList(stockList, stockName);
+        if(stockinfo == null){
+            return -1;
+        }
         Stock stock = stockinfo.stock;
 
         if(stock == null){return -1;}   //we dont have a stock with that name
@@ -116,6 +119,9 @@ public class SimpleBroker {
     // returns -1 if there was a problem, returns 1 if successful
     public synchronized int sell(String stockName, int amount) throws JMSException {
         StockInfos stockinfo = findStockInList(stockList, stockName);
+        if(stockinfo == null){
+            return -1;
+        }
         Stock stock = stockinfo.stock;
 
         if(stock == null){return -1;}   //no such stock is offered
