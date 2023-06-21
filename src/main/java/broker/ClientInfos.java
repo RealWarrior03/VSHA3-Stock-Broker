@@ -97,7 +97,7 @@ public class ClientInfos {
                     changedStock.setStockCount(changedStock.getStockCount() - msg.getAmount());
                 }
             }else{
-                answerMsg = new ErrorMessage(BrokerMessage.Type.STOCK_SELL_ERR, msg.getStockName(), msg.getAmount()); {    //TODO exchange with ErrorMessage
+                answerMsg = new ErrorMessage(BrokerMessage.Type.STOCK_SELL_ERR, msg.getStockName(), msg.getAmount()); {
                 };
             }
         }

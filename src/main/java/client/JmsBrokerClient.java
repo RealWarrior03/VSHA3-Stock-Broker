@@ -47,7 +47,7 @@ public class JmsBrokerClient {
         consumerListener = new MessageListener() {
             public void onMessage(Message message) throws Error {
                 if (message instanceof ObjectMessage) {
-                    BrokerMessage msg;  //TODO fix error
+                    BrokerMessage msg;
                     try {
                         msg = (BrokerMessage) ((ObjectMessage) message).getObject();
                     } catch (JMSException e) {
@@ -94,8 +94,6 @@ public class JmsBrokerClient {
 
         RequestListMessage reqListMsg= new RequestListMessage();
         producer.send(session.createObjectMessage(reqListMsg));
-
-        /* TODO: initialize connection, sessions, consumer, producer, etc. */
     }
     
     public void requestList() throws JMSException {

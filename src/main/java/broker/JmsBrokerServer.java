@@ -22,7 +22,6 @@ public class JmsBrokerServer {
             stocks.add(new Stock("Phillip Morris", 420, 94));
             stocks.add(new Stock("Boeing", 98, 58));
             stocks.add(new Stock("Meta", 41, 69));
-
              */
             
             SimpleBroker broker = new SimpleBroker(stocks);

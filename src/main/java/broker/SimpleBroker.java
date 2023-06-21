@@ -21,13 +21,6 @@ public class SimpleBroker {
     private final MessageListener listener = new MessageListener() {
         @Override
         public void onMessage(Message msg) {
-            /*
-            if(msg instanceof ObjectMessage) {
-                message = ((ObjectMessage) msg).getObject();
-
-            }
-             */
-
             System.out.println("Message received");
             BrokerMessage bm = null;  //TODO fix error
             try {
