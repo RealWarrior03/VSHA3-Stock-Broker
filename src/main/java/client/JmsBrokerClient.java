@@ -29,6 +29,10 @@ public class JmsBrokerClient {
 
     public JmsBrokerClient(String clientName) throws JMSException {
         budget = 1000;
+        stocklist = new ArrayList<>();
+        stocklist.add(new Stock("Cola", 30, 1));
+        stocklist.add(new Stock("Nestle", 49, 666));
+        stocklist.add(new Stock("Tencent", 83, 65));
 
         this.clientName = clientName;
 
